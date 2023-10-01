@@ -195,8 +195,8 @@ memory = {
 }
 program = [
    #('ADD', 'R5', 'R6'),
-     ('CMP', 'R2', 'R7'),
-     ('AND', 'R6',0xFFFFFFF8),
+      ('ADD', 'R5', 'R2')
+    # ('AND', 'R6',0xFFFFFFF8),
    # ('SUB', '[A13F00FC]','R6'),
     # ('JE', 'End_loop'),
     # ('MUL', 'R1', 'R2'),
