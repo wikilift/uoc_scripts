@@ -1,6 +1,6 @@
 # University Coursework Scripts
 
-📚 A collection of scripts aimed at helping students understand and review university coursework. 
+📚 A collection of scripts aimed at helping  understand and review university coursework. 
 
 ## 🌟 Features
 
