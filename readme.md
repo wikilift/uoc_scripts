@@ -18,16 +18,6 @@ cd University-Coursework-Scripts
 ## 🚀 Usage
 Each directory or script in this repository is dedicated to a specific topic or subject. Navigate to the relevant directory and follow the instructions in the local README.md file (if available).
 
-## 🤝 Contributing
-🙏 Pull requests and contributions are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-## 📜 License
-📝 MIT
-
-## 📚 Contents
-
-- [Registers Simulator](#registers-simulator)
-
 ---
 
 ### Registers Simulator
