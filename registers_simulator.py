@@ -1,6 +1,7 @@
 
 def execute_program(registers, memory, program):
     label_positions={}
+    index=0
     initial_registers = registers.copy()
     for idx, (instruction, *operands) in enumerate(program):
         if instruction == 'LABEL':
@@ -77,6 +78,37 @@ def execute_program(registers, memory, program):
             return label_positions[label]
         return index
 
+    def JNE(label, index):
+         # Jump if not equal (Z = 0)
+        if status_bits['Z'] == 0: 
+            return label_positions[label]
+        return index
+
+    def JGE(label, index):
+         # Jump if greater or equal (S = 0)
+        if status_bits['S'] == 0: 
+            return label_positions[label]
+        return index
+
+    def JG(label, index):
+         # Jump if greater (S = 0 and Z = 0)
+        if status_bits['S'] == 0 and status_bits['Z'] == 0: 
+            return label_positions[label]
+        return index
+
+    def JLE(label, index):
+        # Jump if less or equal (S = 1 or Z = 1)
+        if status_bits['S'] == 1 or status_bits['Z'] == 1:  
+            return label_positions[label]
+        return index
+
+    def JL(label, index):
+        # Jump if less (S = 1)
+        if status_bits['S'] == 1:  
+            return label_positions[label]
+        return index
+
+
     def MUL(register1, register2):
         
         result = registers[register1] * registers[register2]
@@ -132,7 +164,10 @@ def execute_program(registers, memory, program):
     for k, v in memory.items():
         print(f"Memory Address: {k}, Value (Decimal): {v}, Value (Hexadecimal): {hex(v)}")
     print("-" * 80)    
-    for instruction, *operands in program:
+    
+    
+    while index < len(program):  # Changed to a while loop
+        instruction, *operands = program[index]
         print(f"Executing: {instruction} {operands}")
         print("-" * 80)
         
@@ -146,21 +181,33 @@ def execute_program(registers, memory, program):
             CMP(*operands)
         elif instruction == 'MOV':
             MOV(*operands)
-             # Update status bits after MOV
-            update_status_bits(registers[operands[0]]) 
+            if operands[0].startswith('[') and operands[0].endswith(']'):
+                mem_address = operands[0][1:-1]
+                update_status_bits(memory.get(mem_address, 0))
+            else:
+                update_status_bits(registers[operands[0]]) 
         elif instruction == 'DEC':
             DEC(*operands)
-             # Update status bits after DEC
             update_status_bits(registers[operands[0]]) 
         elif instruction == 'JE':
-            index = JE(*operands, index)
+            index = JE(*operands, index)          
         elif instruction == 'MUL':
             MUL(*operands)
-             # Update status bits after MUL
             update_status_bits(registers[operands[0]]) 
         elif instruction == 'JMP':
             index = label_positions[operands[0]]   
-        
+        elif instruction == 'JNE':
+            index = JNE(*operands, index)
+        elif instruction == 'JGE':
+            index = JGE(*operands, index)
+        elif instruction == 'JG':
+            index = JG(*operands, index)
+        elif instruction == 'JLE':
+            index = JLE(*operands, index)
+        elif instruction == 'JL':
+            index = JL(*operands, index)
+            
+        index+=1
         print("Current Status Bits:")
         for k, v in status_bits.items():
             print(f"{k}: {v}")
@@ -190,18 +237,18 @@ registers = {
 }
 
 memory = {       
-    'A13F00FC': 0xA13F0104,
-    '00000256': 0x0000025E
+    'FFFFFFF8': 0x08,
+    '100': 0
 }
 program = [
-   #('ADD', 'R5', 'R6'),
-      ('ADD', 'R5', 'R2')
-    # ('AND', 'R6',0xFFFFFFF8),
-   # ('SUB', '[A13F00FC]','R6'),
-    # ('JE', 'End_loop'),
-    # ('MUL', 'R1', 'R2'),
-    # ('JMP', 'Loop'),
-    # ('LABEL', 'End_loop'),
-    # ('MOV', '100', 'R1')
+    ('MOV', 'R2', 3),
+    ('MOV', 'R1', 'R2'),
+    ('LABEL', 'Loop'),
+    ('DEC', 'R2'),
+    ('JE', 'End_loop'),
+    ('MUL', 'R1', 'R2'),
+    ('JMP', 'Loop'),
+    ('LABEL', 'End_loop'),
+    ('MOV', '[100]', 'R1')
 ]
 execute_program(registers=registers, memory=memory, program=program)
