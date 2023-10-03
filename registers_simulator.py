@@ -3,6 +3,7 @@ def execute_program(registers, memory, program):
     label_positions={}
     index=0
     initial_registers = registers.copy()
+    initial_memory = memory.copy()
     for idx, (instruction, *operands) in enumerate(program):
         if instruction == 'LABEL':
             label_positions[operands[0]] = idx
@@ -58,7 +59,6 @@ def execute_program(registers, memory, program):
         status_bits['C'] = 1 if result < 0 else 0  # Carry flag
         status_bits['V'] = 0 
 
-
     def MOV(register1, value):
         
         if isinstance(value, str):
@@ -108,7 +108,6 @@ def execute_program(registers, memory, program):
             return label_positions[label]
         return index
 
-
     def MUL(register1, register2):
         
         result = registers[register1] * registers[register2]
@@ -144,7 +143,6 @@ def execute_program(registers, memory, program):
         status_bits['C'] = 1 if result < 0 else 0
         status_bits['V'] = 0  # imposible overflow on sub
 
-
     def AND(register1, operand2):
         # Check if operand2 is a register name or a numerical constant
         if isinstance(operand2, str) and operand2 in registers:
@@ -159,11 +157,13 @@ def execute_program(registers, memory, program):
         
         
         update_status_bits(result)
-    print("Initial Memory State")
-    print("-" * 80) 
-    for k, v in memory.items():
-        print(f"Memory Address: {k}, Value (Decimal): {v}, Value (Hexadecimal): {hex(v)}")
-    print("-" * 80)    
+   
+   
+    # print("Initial Memory State")
+    # print("-" * 80) 
+    # for k, v in memory.items():
+    #     print(f"Memory Address: {k}, Value (Decimal): {v}, Value (Hexadecimal): {hex(v)}")
+    # print("-" * 80)    
     
     
     while index < len(program):  # Changed to a while loop
@@ -212,16 +212,22 @@ def execute_program(registers, memory, program):
         for k, v in status_bits.items():
             print(f"{k}: {v}")
         print("-" * 80)
-        print("Memory State")
-        for k, v in memory.items():
-            print(f"Memory Address: {k}, Value (Decimal): {v}, Value (Hexadecimal): {hex(v)}")
-        print("-" * 80)
-        
+        changed_memory = {k: v for k, v in memory.items() if v != initial_memory.get(k, None)}
+
+        if changed_memory:
+            print("Changed Memory State")
+            print("-" * 80)
+            for k, v in changed_memory.items():
+                print(f"Memory Address: {k}, Initial Value (Decimal): {initial_memory.get(k, None)}, Current Value (Decimal): {v}, Current Value (Hexadecimal): {hex(v)}")
+            print("-" * 80)
+        else:
+            print("No memory positions changed")
+            print("-" * 80)
         changed_registers = {k: v for k, v in registers.items() if v != initial_registers.get(k, None)} 
         if changed_registers:
             print("Changed Registers:")
             for k, v in changed_registers.items():
-                print(f"{k}: {hex(v)}")
+                print(f"{k}: {hex(v)}Hex, (Decimal):{v}")
         else:
             print("No registers modified")
             
@@ -231,24 +237,24 @@ registers = {
     'R2': 0x00000004,
     'R5': 0x0000000A,
     'R6': 0x0000000C,
-    'R7': 0x0000000C,
+    'R7': 0x0000000E,
    
     
 }
 
 memory = {       
-    'FFFFFFF8': 0x08,
-    '100': 0
+    'A13F00FC': 0xA13F0104,
+    '00000256': 0x00000025
 }
 program = [
-    ('MOV', 'R2', 3),
-    ('MOV', 'R1', 'R2'),
-    ('LABEL', 'Loop'),
-    ('DEC', 'R2'),
-    ('JE', 'End_loop'),
-    ('MUL', 'R1', 'R2'),
-    ('JMP', 'Loop'),
-    ('LABEL', 'End_loop'),
-    ('MOV', '[100]', 'R1')
+    ('ADD', 'R5', 'R6'),
+    #('MOV', 'R1', 'R2'),
+    #('LABEL', 'Loop'),
+    #('DEC', 'R2'),
+    #('JE', 'End_loop'),
+    #('MUL', 'R1', 'R2'),
+    #('JMP', 'Loop'),
+    #('LABEL', 'End_loop'),
+    #('MOV', '[100]', 'R1')
 ]
 execute_program(registers=registers, memory=memory, program=program)
