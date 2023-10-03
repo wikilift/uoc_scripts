@@ -1,37 +1,54 @@
-from sympy import *
+from sympy import symbols, limit, oo, S, degree, latex
+import matplotlib.pyplot as plt
 
 def limit_calc(function: str, variable: str, value_to_aproximate: str) -> str:
+    steps = []
     
     if value_to_aproximate == 'oo':
         value_to_aproximate = oo
     elif value_to_aproximate == '-oo':
         value_to_aproximate = -oo
     else:
-        value_to_aproximate = S(value_to_aproximate)  
+        value_to_aproximate = S(value_to_aproximate)
     
     x = symbols(variable)
-    func = S(function) 
+    func = S(function)
     
-    print(f"1: Original: {func}")
-    
-    
-    func_simplified = func.simplify()
-    if func != func_simplified:
-        print(f"2: Simplified: {func_simplified}")
+    steps.append(f"1: Original: ${latex(func)}$")
     
     if func.is_rational_function(x):
-        highest_power = degree(func.as_numer_denom()[1], gen=x)
-        print(f"Step 3: The highest power of x in the denominator is {highest_power}.")
-       
         numer, denom = func.as_numer_denom()
-        func_divided = cancel((numer / (x ** highest_power)) / (denom / (x ** highest_power)))
-        print(f"Step 4: Function after dividing by x^{highest_power}: {func_divided}")
+        
+       
+        highest_power = degree(denom, gen=x)
+        steps.append(f"2: The highest power of x in the denominator is {highest_power}.")
+        
+        
+        numer_divided = numer / x**highest_power
+        denom_divided = denom / x**highest_power
+        
+        
+        numer_divided = numer_divided.simplify()
+        denom_divided = denom_divided.simplify()
+        
+        func_divided = numer_divided / denom_divided
+
+        steps.append(f"3: Function after dividing by x^{highest_power}: ${latex(func_divided)}$")
+        
+        func_to_use_for_limit = func_divided
     
-    lim = limit(func_simplified, x, value_to_aproximate)
-    return f"3: Limit is: {lim}"
+    else:
+        func_to_use_for_limit = func
+    
+    lim = limit(func_to_use_for_limit, x, value_to_aproximate)
+    steps.append(f"4: The limit is: ${latex(lim)}$")
+    
+    fig, ax = plt.subplots()
+    ax.axis('off')
+    for i, step in enumerate(reversed(steps)):
+        ax.annotate(step, xy=(0.5, 0.1 + i * 0.2), xycoords='axes fraction', fontsize=16,
+                    horizontalalignment='center', verticalalignment='center')
+    
+    plt.show()
 
-
-result = limit_calc("(4*x**2 - 3*x + 2) / (2*x**2 - 7*x - 5)", "x", "oo")
-
-
-print(result)
+limit_calc("(4*x**2 - 3*x + 2) / (2*x**2 - 7*x - 5)", "x", "oo")
