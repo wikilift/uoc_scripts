@@ -50,5 +50,7 @@ def limit_calc(function: str, variable: str, value_to_aproximate: str) -> str:
                     horizontalalignment='center', verticalalignment='center')
     
     plt.show()
+                      #! operation                   "var""tendence"
+#limit_calc("(4*x**2 - 3*x + 2) / (2*x**2 - 7*x - 5)", "x", "oo")
+limit_calc("(x**2 - 3*x + 1) / (4*x**2 + 2)", "x", "oo")#? indeterminate test
 
-limit_calc("(4*x**2 - 3*x + 2) / (2*x**2 - 7*x - 5)", "x", "oo")
