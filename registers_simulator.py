@@ -14,6 +14,16 @@ def execute_program(registers, memory, program):
         'C': 0,
         'V': 0
     }
+    
+    def SHL(register, bits):
+        registers[register] <<= bits
+        registers[register] &= 0xFFFFFFFF  
+        update_status_bits(registers[register])
+          
+    def SHR(register, bits):
+        registers[register] >>= bits
+        update_status_bits(registers[register])
+        
     def update_status_bits(result):
     
         status_bits['Z'] = 1 if result == 0 else 0  # Zero flag
@@ -157,13 +167,7 @@ def execute_program(registers, memory, program):
         
         
         update_status_bits(result)
-   
-   
-    # print("Initial Memory State")
-    # print("-" * 80) 
-    # for k, v in memory.items():
-    #     print(f"Memory Address: {k}, Value (Decimal): {v}, Value (Hexadecimal): {hex(v)}")
-    # print("-" * 80)    
+    
     
     
     while index < len(program):  # Changed to a while loop
@@ -186,6 +190,10 @@ def execute_program(registers, memory, program):
                 update_status_bits(memory.get(mem_address, 0))
             else:
                 update_status_bits(registers[operands[0]]) 
+        elif instruction == 'SHL':
+            SHL(*operands)
+        elif instruction == 'SHR':
+            SHR(*operands)
         elif instruction == 'DEC':
             DEC(*operands)
             update_status_bits(registers[operands[0]]) 
@@ -247,14 +255,14 @@ memory = {
     '00000256': 0x00000025
 }
 program = [
-    ('ADD', 'R5', 'R6'),
-    #('MOV', 'R1', 'R2'),
-    #('LABEL', 'Loop'),
-    #('DEC', 'R2'),
-    #('JE', 'End_loop'),
-    #('MUL', 'R1', 'R2'),
-    #('JMP', 'Loop'),
-    #('LABEL', 'End_loop'),
-    #('MOV', '[100]', 'R1')
+    #('ADD', 'R5', 'R6'),
+    ('MOV', 'R1', 'R2'),
+    ('LABEL', 'Loop'),
+    ('DEC', 'R2'),
+    ('JE', 'End_loop'),
+    ('MUL', 'R1', 'R2'),
+    ('JMP', 'Loop'),
+    ('LABEL', 'End_loop'),
+    ('MOV', '[100]', 'R1')
 ]
 execute_program(registers=registers, memory=memory, program=program)
