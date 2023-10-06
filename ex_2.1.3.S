@@ -1,8 +1,4 @@
-
-
-
-                                                    Bk para k=0..10
-Dirección       Eti         Ensamblador         0   1   2   3   4   5   6   7   8   9   10   
+                                                offset         Eti         Ensamblador          BK
 00010000h                   MOV R1, R2          10  11  12
 00010003h       E1:         DEC R2              25  12
 00010005h                   JE E2               41  60  09  00
