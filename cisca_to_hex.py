@@ -53,3 +53,18 @@ print("JE E2 -->", calculate_bk_complete('JE', ['E2']))  # Debería ser 41 (desp
 print("MUL R1,R2 -->", calculate_bk_complete('MUL', ['R1', 'R2']))  # Debería ser 22 11 12
 print("MOV R3,4 -->", calculate_bk_complete('MOV', ['R3', '4']))  # Debería ser 10 13 00 04 00 00 00
 print("MOV [100+R3],R1 -->", calculate_bk_complete('MOV', ['[100+R3]', 'R1']))  # Debería ser 10 53 64 00 00 00 11
+
+
+program = [
+    "MOV R1 R2",
+    "DEC R2",
+    "JE E2",
+    "MUL R1 R2",
+    "JMP E1",
+    "MOV R3 4",
+    "MOV [100+R3] R1"
+]
+
+
+
+start_address = 0x00010000
