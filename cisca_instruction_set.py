@@ -36,12 +36,12 @@ OPCODES = {
     'OUT': '51'
 }
 
-ADRESSING_MODES = {
+ADDRESSING_MODES = {
     'Immediate': '0',
     'Register': '1',
     'Memory': '2',
     'Indirect': '3',
     'Relative': '4',
     'Indexed': '5',
-    'EN PC': '6'
+    'Relative_to_PC': '6'
 }
