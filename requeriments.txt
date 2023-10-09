@@ -1,0 +1,4 @@
+python>=3.6
+pandas>=1.0.0
+matplotlib>=3.0.0
+symPy>=1.0
