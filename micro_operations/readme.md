@@ -7,11 +7,11 @@
 - Navigate to the `scripts` directory and run the script.
   ```bash
    cd cpu_instruction_cycle_simulation
+    cpu_instruction_cycle_simulation.py
+
   
 ```
-- Run the script.
-```bash
- python cpu_instruction_cycle_simulation.py
+
 
   ```
 #### ✨ Features
