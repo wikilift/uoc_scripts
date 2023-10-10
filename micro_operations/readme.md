@@ -7,9 +7,7 @@
 - Navigate to the `scripts` directory and run the script.
   ```bash
    cd cpu_instruction_cycle_simulation
-    cpu_instruction_cycle_simulation.py
-
-  
+   cpu_instruction_cycle_simulation.py
 ```
 
 
@@ -17,7 +15,9 @@
 #### ✨ Features
 
 :gear: Simulates the instruction cycle for a hypothetical CPU.
+
 :book: Supports basic assembly language instructions like MOV, ADD, SUB, MUL, etc.
+
 :loudspeaker: Provides a detailed explanation of each step in the instruction cycle.
 
 #### 📖 Documentation
