@@ -11,7 +11,7 @@
 ```
    cpu_instruction_cycle_simulation.py 
 
-```
+
 #### ✨ Features
 
 :gear: Simulates the instruction cycle for a hypothetical CPU.
