@@ -1,34 +1,7 @@
 from memory_ops import translate_to_hex_with_labels
 
 
-#exercice 1
-program = [
-    ('MOV', 'R1', 'R2'),
-    ('DEC', 'R2', 'LABEL:E1'),
-    ('JE', 'E2'),
-    ('MUL', 'R1', 'R2'),
-    ('JMP', 'E1'),
-    ('MOV', 'R3', 4, 'LABEL:E2'),
-    ('MOV', '[100+R3]', 'R1')
-]
 
-# #! exercice 2
-program = [
-    ('MOV', 'R0', '[A]'),
-    ('CMP', 'R0', '[B]'),
-    ('JLE', 'E1'),
-    ('DEC', 'R0'),
-    ('JMP', 'E2'),
-    ('ADD', '[B]', 4, 'LABEL:E1'),
-    ('MUL', '[B]', 'R0', 'LABEL:E2'),
-    ('MOV', '[A]', 'R0'),
-   
-]
-memory_values= {
-    "A": "20",
-    "B": "200",
-    "100":"0"
-}
 
 def printResult(graphic=False,xlsOutput=False):
     import pandas as pd
@@ -55,7 +28,34 @@ def printResult(graphic=False,xlsOutput=False):
         excel_path = os.path.join(output_folder, "translated_instructions.xlsx")
         df.to_excel(excel_path, index=False)
 
+#exercice 1
+program = [
+    ('MOV', 'R1', 'R2'),
+    ('DEC', 'R2', 'LABEL:E1'),
+    ('JE', 'E2'),
+    ('MUL', 'R1', 'R2'),
+    ('JMP', 'E1'),
+    ('MOV', 'R3', 4, 'LABEL:E2'),
+    ('MOV', '[100+R3]', 'R1')
+]
 
-printResult(xlsOutput=False,graphic=True)
+# # #! exercice 2
+# program = [
+#     ('MOV', 'R0', '[A]'),
+#     ('CMP', 'R0', '[B]'),
+#     ('JLE', 'E1'),
+#     ('DEC', 'R0'),
+#     ('JMP', 'E2'),
+#     ('ADD', '[B]', 4, 'LABEL:E1'),
+#     ('MUL', '[B]', 'R0', 'LABEL:E2'),
+#     ('MOV', '[A]', 'R0'),
+   
+# ]
+memory_values= {
+    "A": "20",
+    "B": "200",
+    "100":"0"
+}
+printResult(xlsOutput=False,graphic=False)
 
 

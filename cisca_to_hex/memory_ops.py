@@ -1,6 +1,6 @@
 
-
-from cisca_instruction_set import ADDRESSING_MODES,OPCODES,ARITHMETIC_OPERATIONS,execute_arithmetic_operation
+from cisca_instruction_set import ADDRESSING_MODES,OPCODES
+from operator_chooser import ARITHMETIC_OPERATIONS,execute_arithmetic_operation
 
 
 def MOV(register1, value, registers):
