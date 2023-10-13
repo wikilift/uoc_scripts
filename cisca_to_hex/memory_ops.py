@@ -96,7 +96,7 @@ def translate_to_hex_with_labels(instructions, memory_values=None, initial_offse
                     hex_operands.append(f"{hex_value}")
             elif isinstance(operand, int):
                 hex_value = f"{operand:08X}"
-                hex_operands.append(f" {ADDRESSING_MODES['Immediate']}4 {to_little_endian(hex_str=hex_value,num_positions=8)} ")
+                hex_operands.append(f" {ADDRESSING_MODES['Immediate']}0 {to_little_endian(hex_str=hex_value,num_positions=8)} ")
             elif isinstance(operand, str) and operand in label_to_offset:
                 target_offset = label_to_offset[operand]               
                 if opcode == '40': 

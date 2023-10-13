@@ -1,13 +1,13 @@
-from cisca_registers_sim.update_bits import update_status_bits
+from update_bits import update_status_bits
 
-def AND(register1, operand2, registers, status_bits):
+def AND(register1, operand2, registers):
     if isinstance(operand2, str) and operand2 in registers:
         and_value = registers[operand2]
     else:
         and_value = operand2
     result = registers[register1] & and_value
     registers[register1] = result
-    update_status_bits(result, status_bits)
+    update_status_bits(result)
 
 def CMP(register1, register2, registers, status_bits):
     value1 = registers[register1]
@@ -61,3 +61,43 @@ def SHL(register, bits, registers, status_bits):
 def SHR(register, bits, registers, status_bits):
     registers[register] >>= bits
     update_status_bits(registers[register], status_bits)
+    
+    
+def SAR(register, bits, registers):
+        sign_bit = registers[register] & 0x80000000
+        registers[register] >>= bits
+        if sign_bit:
+            registers[register] |= (0xFFFFFFFF << (32 - bits))
+        
+        registers[register] &= 0xFFFFFFFF
+
+        update_status_bits(registers[register])
+    
+def NOT(register, registers,memory):
+    
+        if register.startswith('[') and register.endswith(']'):
+          
+            actual_register = register[1:-1]
+            mem_address = registers.get(actual_register, 0)
+          
+            memory[mem_address] = ~memory.get(mem_address, 0) & 0xFFFFFFFF
+            update_status_bits(memory[mem_address])
+        else:
+           
+            registers[register] = ~registers[register] & 0xFFFFFFFF  
+            update_status_bits(registers[register])
+    
+def MOV(register1, value,registers,memory):
+        
+        if isinstance(value, str):
+            if value.startswith('[') and value.endswith(']'):
+                # It's a memory address
+                mem_address = value[1:-1]
+                registers[register1] = memory.get(mem_address, 0)
+            else:
+                # It's a register
+                registers[register1] = registers[value]
+        else:
+            registers[register1] = value
+        
+        update_status_bits(registers[register1])

@@ -56,6 +56,6 @@ memory_values= {
     "B": "200",
     "100":"0"
 }
-printResult(xlsOutput=False,graphic=False)
+printResult(xlsOutput=False,graphic=True)
 
 

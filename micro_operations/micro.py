@@ -6,12 +6,12 @@ def to_big_endian(s: str) -> str:
     return reversed_s
 
 
-def simulate_instruction_cycle(instruction, initial_offset_hex, instruction_bytes):
+def simulate_instruction_cycle(instruction, initial_offset_hex, instruction_bytes, known_labels=[]):
     steps = []
     offset_hex = initial_offset_hex.replace("h", "") 
     offset_decimal = int(offset_hex, 16)
 
-  
+    # Phase 1
     steps.append(f"Fase 1 para instrucción {instruction[0]} {', '.join(map(str, instruction[1:]))} en offset {offset_hex}h:")
     steps.append(f"(MAR={offset_hex.zfill(8)}h) ← (PC={offset_hex.zfill(8)}h), read")
 
@@ -22,28 +22,36 @@ def simulate_instruction_cycle(instruction, initial_offset_hex, instruction_byte
     new_offset_decimal = offset_decimal + instruction_size
     new_offset_hex = f"{new_offset_decimal:08X}"
     steps.append(f"(PC={new_offset_hex.zfill(8)}h) ← (PC={offset_hex.zfill(8)}h) + {instruction_size}")
-    
     steps.append(f"(IR={to_big_endian(mbr_content).zfill(8)}) ← (MBR={to_big_endian(mbr_content).zfill(8)})")
 
-
+    # Phase 2
     steps.append(f"Fase 2:")
-    operands_are_registers = all(isinstance(op, str) and op.startswith("R") for op in instruction[1:])
-    if operands_are_registers:
-        steps.append("(No es necesario hacer nada, los operandos fuente son registros)")
-    else:
-        for operand in instruction[1:]:
-            if isinstance(operand, str) and operand.startswith("[") and operand.endswith("]"):
-                steps.append(f"(Leer el valor en memoria {operand})")
-            elif isinstance(operand, str) and operand in known_labels:
-                steps.append(f"(no hay que hacer nada la etiqueta {operand} será resuelta durante la ejecución,se entiende como op. fuente)")
-            elif isinstance(operand, str):
-                steps.append(f"(No es necesario hacer nada {operand} es un valor que ya está en un registro)")
-            elif isinstance(operand, int):
-                steps.append(f"(No es necesario hacer nada {operand} es un valor inmediato está en la propia instrucción)")
+    
 
+    if instruction[0] == "MOV":
+        source_operand = instruction[2]
+        dest_operand = instruction[1]
+        if isinstance(source_operand, str) and source_operand.startswith("[") and source_operand.endswith("]"):
+            steps.append(f"(Leer el valor en memoria {source_operand})")
+        elif isinstance(dest_operand, str) and dest_operand.startswith("[") and dest_operand.endswith("]"):
+            steps.append("(No es necesario hacer nada, el operando destino es una dirección de memoria)")
+        else:
+            steps.append(f"(No es necesario hacer nada, el operando fuente es {source_operand})")
+    elif instruction[0]=="JMP":
+        steps.append(f"(no hay que hacer nada la etiqueta {instruction[1]} será resuelta durante la ejecución,se entiende como op. fuente)")
+    # Phase 3
     steps.append(f"Fase 3:")
     if instruction[0] == "MOV":
-        steps.append(f"{instruction[1]} ← {instruction[2]}")
+        if instruction[1].startswith("[") and instruction[1].endswith("]"):
+            steps.append(f"MBR ← {instruction[2]}")
+            addr_operand = instruction[1][1:-1].split('+')
+            if len(addr_operand) == 2:
+                steps.append(f"(MAR=IR(dirección operando) + {addr_operand[1]}) ← {addr_operand[0]} + {addr_operand[1]}, write")
+            else:
+                steps.append(f"(MAR={addr_operand[0]}h) ← {addr_operand[0]}h, write")
+            steps.append("Memoria ← MBR")
+        else:
+            steps.append(f"{instruction[1]} ← {instruction[2]}")
     elif instruction[0] == "MUL":
         steps.append(f"{instruction[1]} ← {instruction[1]} * {instruction[2]}")
     elif instruction[0] == "ADD":
@@ -75,6 +83,7 @@ def simulate_instruction_cycle(instruction, initial_offset_hex, instruction_byte
         steps.append("MBR ← Memoria")
         steps.append("SP ← SP + 4")
         steps.append("PC ← MBR")
+
     steps.append("_"*80)
     return steps
 

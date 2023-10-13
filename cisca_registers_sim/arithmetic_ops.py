@@ -1,4 +1,4 @@
-from cisca_registers_sim.update_bits import *
+from update_bits import *
 
 def ADD(register1, operand, registers, memory, status_bits):
     if isinstance(operand, str):
@@ -18,33 +18,36 @@ def ADD(register1, operand, registers, memory, status_bits):
     status_bits['C'] = 1 if result_unsigned > 0xFFFFFFFF else 0
     status_bits['V'] = 0
     
-def DEC(register, registers, status_bits):
+def DEC(register, registers):
     registers[register] -= 1
-    update_status_bits(registers[register], status_bits)
+    update_status_bits(registers[register])
 
-def MUL(register1, register2, registers, status_bits):
+def MUL(register1, register2, registers):
     result = registers[register1] * registers[register2]
     registers[register1] = result & 0xFFFFFFFF  # 32-bit result
-    update_status_bits(result, status_bits)
+    update_status_bits(result)
     
-def SUB(operand1, operand2, registers, memory, status_bits):
-    if operand1.startswith('[') and operand1.endswith(']'):
-        mem_address1 = operand1[1:-1]
-        value1 = memory.get(mem_address1, 0)
+def SUB(operand1, operand2, registers, memory):
+    if operand2.startswith('[') and operand2.endswith(']'):
+        mem_address2 = operand2[1:-1]
+        if mem_address2 in registers:
+            mem_address2 = hex(registers[mem_address2])[2:].upper()
+        value2 = memory.get(mem_address2, 0)
+      
+    elif operand2 in registers:
         value2 = registers[operand2]
-        result = value1 - value2
-        result_32bit = result & 0xFFFFFFFF  # 32-bit result
-        memory[mem_address1] = result_32bit
     else:
+        value2 = int(operand2, 16) if operand2.startswith("0x") else int(operand2)
+
+    if operand1 in registers:
         value1 = registers[operand1]
-        if operand2 in registers:
-            value2 = registers[operand2]
-        else:
-            value2 = operand2
         result = value1 - value2
-        result_32bit = result & 0xFFFFFFFF  # 32-bit result
+        result_32bit = result & 0xFFFFFFFF  # 32-bit result AND
         registers[operand1] = result_32bit
-    update_status_bits(result_32bit, status_bits)
-    status_bits['C'] = 1 if result < 0 else 0
-    status_bits['V'] = 0
+        status_bits['C'] = 1 if result < 0 else 0
+        status_bits['V'] = 0  # impossible overflow on sub
+        update_status_bits(result_32bit)
+    else:
+        raise ValueError("Invalid operand1")
+
     
