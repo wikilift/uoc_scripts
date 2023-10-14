@@ -43,7 +43,7 @@ def execute_program(registers, memory, program,pdf=False):
         if instruction == 'ADD':
             ADD(*operands,registers=registers,memory=memory,status_bits=status_bits)
         elif instruction == 'SUB':
-            SUB(*operands,memory=memory,registers=registers)
+            SUB(*operands,memory=memory,registers=registers,status_bits=status_bits)
         elif instruction == 'AND':
             AND(*operands,registers=registers)
         elif instruction == 'CMP':
@@ -66,8 +66,7 @@ def execute_program(registers, memory, program,pdf=False):
         elif instruction == 'JE':
             index = JE(*operands, index,status_bits=status_bits,label_positions=label_positions)          
         elif instruction == 'MUL':
-            MUL(*operands)
-            update_status_bits(registers[operands[0]]) 
+            MUL(*operands,status_bits=status_bits)
         elif instruction == 'JMP':
             index = label_positions[operands[0]]   
             print(f"Loop iteration:{loop_iterator}")

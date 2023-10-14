@@ -40,12 +40,13 @@ program = [
    
 ]
 memory_values= {
-    "V": "00800080",
     "B": "200",
     "100":"0"
 }
-initial_offset=0x00AABBCC
-printResult(xlsOutput=False,graphic=None,offset=initial_offset)
+initial_offset=0x000010F8
+
+
+printResult(xlsOutput=False,graphic=True,offset=initial_offset)
 
 
 

@@ -10,21 +10,15 @@ def simulate_instruction_cycle(instruction, initial_offset_hex, instruction_byte
     steps = []
     offset_hex = initial_offset_hex.replace("h", "") 
     offset_decimal = int(offset_hex, 16)
-
-    # Phase 1
     steps.append(f"Fase 1 para instrucción {instruction[0]} {', '.join(map(str, instruction[1:]))} en offset {offset_hex}h:")
     steps.append(f"(MAR={offset_hex.zfill(8)}h) ← (PC={offset_hex.zfill(8)}h), read")
-
     mbr_content = instruction_bytes.replace(" ", "")
-    steps.append(f"(MBR={to_big_endian(mbr_content).zfill(8)}h) ← Memoria")
-    
+    steps.append(f"(MBR={to_big_endian(mbr_content).zfill(8)}h) ← Memoria")  
     instruction_size = len(instruction_bytes.split())
     new_offset_decimal = offset_decimal + instruction_size
     new_offset_hex = f"{new_offset_decimal:08X}"
     steps.append(f"(PC={new_offset_hex.zfill(8)}h) ← (PC={offset_hex.zfill(8)}h) + {instruction_size}")
     steps.append(f"(IR={to_big_endian(mbr_content).zfill(8)}) ← (MBR={to_big_endian(mbr_content).zfill(8)})")
-
-    # Phase 2
     steps.append(f"Fase 2:")
     
 
@@ -39,7 +33,31 @@ def simulate_instruction_cycle(instruction, initial_offset_hex, instruction_byte
             steps.append(f"(No es necesario hacer nada, el operando fuente es {source_operand})")
     elif instruction[0]=="JMP":
         steps.append(f"(no hay que hacer nada la etiqueta {instruction[1]} será resuelta durante la ejecución,se entiende como op. fuente)")
-    # Phase 3
+    
+    elif instruction[0] == "XOR":
+       
+        if isinstance(instruction[2], str) and instruction[2].startswith("[") and instruction[2].endswith("]"):
+            steps.append(f"(Leer el valor en memoria {instruction[2]})")
+        else:
+            steps.append(f"(No es necesario hacer nada, el operando fuente es {instruction[2]})")
+    elif instruction[0] in ["ADD", "SUB","MUL","DIV"]:
+       
+        if isinstance(instruction[2], str) and instruction[2].startswith("[") and instruction[2].endswith("]"):
+            steps.append(f"(Leer el valor en memoria {instruction[2]})")
+        else:
+            steps.append(f"(No es necesario hacer nada, el operando fuente es {instruction[2]})")
+    elif instruction[0] == "CMP":
+        
+        if isinstance(instruction[2], int):
+            steps.append(f"(Cargar el valor inmediato {instruction[2]})")
+        elif isinstance(instruction[2], str) and instruction[2].startswith("[") and instruction[2].endswith("]"):
+            steps.append(f"(Leer el valor en memoria {instruction[2]})")
+        else:
+            steps.append(f"(No es necesario hacer nada, el operando fuente es {instruction[2]})")
+        
+    elif instruction[0] in ["JLE", "JE", "JNE", "JL", "JLE", "JG", "JGE"]:
+        steps.append(f"Evaluación de las condiciones para el salto utilizando los flags apropiados.")   
+    
     steps.append(f"Fase 3:")
     if instruction[0] == "MOV":
         if instruction[1].startswith("[") and instruction[1].endswith("]"):
@@ -52,37 +70,53 @@ def simulate_instruction_cycle(instruction, initial_offset_hex, instruction_byte
             steps.append("Memoria ← MBR")
         else:
             steps.append(f"{instruction[1]} ← {instruction[2]}")
-    elif instruction[0] == "MUL":
-        steps.append(f"{instruction[1]} ← {instruction[1]} * {instruction[2]}")
+    elif instruction[0] == "CMP":
+        steps.append(f"Comparar el valor en el registro {instruction[1]} con el valor {instruction[2]}")
+        steps.append(f"Ajustar los flags de estado (Z, L, G) según el resultado de la comparación")
+
+    elif instruction[0] == "XOR":
+        steps.append(f"{instruction[1]} ← {instruction[1]} XOR {instruction[2]}") 
+        steps.append(f"Realizar la operación XOR entre el registro {instruction[1]} y el valor/registro {instruction[2]}")
+        steps.append(f"Guardar el resultado en el registro {instruction[1]}")
+
     elif instruction[0] == "ADD":
         steps.append(f"{instruction[1]} ← {instruction[1]} + {instruction[2]}")
+        steps.append(f"Sumar el valor en el registro {instruction[1]} y el valor/registro {instruction[2]}")
+        steps.append(f"Guardar el resultado en el registro {instruction[1]}")
+
     elif instruction[0] == "SUB":
         steps.append(f"{instruction[1]} ← {instruction[1]} - {instruction[2]}")
-    elif instruction[0] == "JMP":
-        steps.append(f"(PC={instruction[1]}) ← {instruction[1]}")
-    elif instruction[0] == "JE":
-        steps.append(f"Si Z=1, (PC={instruction[1]}) ← {instruction[1]}")
-    elif instruction[0] == "JNE":
-        steps.append(f"Si Z=0, (PC={instruction[1]}) ← {instruction[1]}")
-    elif instruction[0] == "JL":
-        steps.append(f"Si L=1, (PC={instruction[1]}) ← {instruction[1]}")
-    elif instruction[0] == "JLE":
-        steps.append(f"Si LE=1, (PC={instruction[1]}) ← {instruction[1]}")
-    elif instruction[0] == "JG":
-        steps.append(f"Si G=1, (PC={instruction[1]}) ← {instruction[1]}")
-    elif instruction[0] == "JGE":
-        steps.append(f"Si GE=1, (PC={instruction[1]}) ← {instruction[1]}")
+        steps.append(f"Restar el valor/registro {instruction[2]} del registro {instruction[1]}")
+        steps.append(f"Guardar el resultado en el registro {instruction[1]}")
+
+    elif instruction[0] == "MUL":
+        steps.append(f"{instruction[1]} ← {instruction[1]} * {instruction[2]}")
+        steps.append(f"Multiplicar el valor en el registro {instruction[1]} por el valor/registro {instruction[2]}")
+        steps.append(f"Guardar el resultado en el registro {instruction[1]}")
+
+    elif instruction[0] in ["JMP", "JE", "JNE", "JL", "JLE", "JG", "JGE"]:
+        condition = {
+            "JMP": "incondicionalmente",
+            "JE": "si el flag Z es 1",
+            "JNE": "si el flag Z es 0",
+            "JL": "si el flag L es 1",
+            "JLE": "si el flag LE es 1",
+            "JG": "si el flag G es 1",
+            "JGE": "si el flag GE es 1",
+        }[instruction[0]]
+        steps.append(f"Evaluar la condición {condition}")
+        steps.append(f"Si la condición se cumple, actualizar el registro del contador del programa (PC) con el valor {instruction[1]}")
+
     elif instruction[0] == "CALL":
-        steps.append(f"MBR ← PC")
-        steps.append("SP ← SP - 4")
-        steps.append("MAR ← SP, write")
-        steps.append("Memoria ← MBR")
-        steps.append(f"PC ← {instruction[1]}")
+        steps.append(f"Guardar el valor actual del PC en el registro MBR")
+        steps.append(f"Decrementar el puntero de pila SP en 4")
+        steps.append(f"Escribir el valor del MBR en la dirección apuntada por SP")
+        steps.append(f"Actualizar el registro del contador del programa (PC) con el valor {instruction[1]}")
+
     elif instruction[0] == "RET":
-        steps.append("MAR ← SP, read")
-        steps.append("MBR ← Memoria")
-        steps.append("SP ← SP + 4")
-        steps.append("PC ← MBR")
+        steps.append(f"Leer el valor en la dirección apuntada por SP en el registro MBR")
+        steps.append(f"Incrementar el puntero de pila SP en 4")
+        steps.append(f"Actualizar el registro del contador del programa (PC) con el valor almacenado en MBR")
 
     steps.append("_"*80)
     return steps
