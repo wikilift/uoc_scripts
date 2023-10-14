@@ -27,6 +27,7 @@ def generate_pdf(output_lines,initial_registers,initial_memory):
     pdf.output("output/assembly_output.pdf")
 
 def execute_program(registers, memory, program,pdf=False):
+    loop_iterator=0
     result=[]
     label_positions=set_labels(program=program)
     index=0
@@ -41,13 +42,13 @@ def execute_program(registers, memory, program,pdf=False):
         print("-" * 80)
         
         if instruction == 'ADD':
-            ADD(*operands)
+            ADD(*operands,registers=registers,memory=memory,status_bits=status_bits)
         elif instruction == 'SUB':
             SUB(*operands,memory=memory,registers=registers)
         elif instruction == 'AND':
             AND(*operands,registers=registers)
         elif instruction == 'CMP':
-            CMP(*operands)
+            CMP(*operands,registers=registers,status_bits=status_bits)
         elif instruction == 'MOV':
             MOV(*operands,memory=memory,registers=registers)
             if operands[0].startswith('[') and operands[0].endswith(']'):
@@ -60,25 +61,30 @@ def execute_program(registers, memory, program,pdf=False):
         elif instruction == 'SHR':
             SHR(*operands)
         elif instruction == 'DEC':
-            DEC(*operands)
-            update_status_bits(registers[operands[0]]) 
+            DEC(*operands,registers=registers)
+        elif instruction == 'INC':
+            INC(*operands,registers=registers)
+            #update_status_bits(registers[operands[0]]) 
         elif instruction == 'JE':
-            index = JE(*operands, index)          
+            index = JE(*operands, index,status_bits=status_bits,label_positions=label_positions)          
         elif instruction == 'MUL':
             MUL(*operands)
             update_status_bits(registers[operands[0]]) 
         elif instruction == 'JMP':
             index = label_positions[operands[0]]   
+            print(f"Loop iteration:{loop_iterator}")
+            result.append(f"Loop iteration:{loop_iterator}")
+            loop_iterator+=1
         elif instruction == 'JNE':
-            index = JNE(*operands, index)
+            index = JNE(*operands, index,status_bits=status_bits,label_positions=label_positions) 
         elif instruction == 'JGE':
-            index = JGE(*operands, index)
+            index = JGE(*operands, index,status_bits=status_bits,label_positions=label_positions) 
         elif instruction == 'JG':
-            index = JG(*operands, index)
+            index = JG(*operands, index,status_bits=status_bits,label_positions=label_positions) 
         elif instruction == 'JLE':
-            index = JLE(*operands, index)
+            index = JLE(*operands, index,status_bits=status_bits,label_positions=label_positions) 
         elif instruction == 'JL':
-            index = JL(*operands, index)
+            index = JL(*operands, index,status_bits=status_bits,label_positions=label_positions)
         elif instruction == 'NOT':
             NOT(*operands, registers, memory)
 
@@ -101,8 +107,8 @@ def execute_program(registers, memory, program,pdf=False):
             print("Changed Memory State")
             print("-" * 80)
             for k, v in changed_memory.items():
-                result.append(f"Memory Address: 0x{str(k).zfill(8)}h\nInitial Value (Decimal): {initial_memory.get(k, None)}\nCurrent Value (Decimal): {v}\nCurrent Value (Hexadecimal): {str(hex(v)).upper().zfill(8)}\n")
-                print(f"Memory Address: 0x{str(k).zfill(8)}h, Initial Value (Decimal): {initial_memory.get(k, None)}, Current Value (Decimal): {v}, Current Value (Hexadecimal): {str(hex(v)).upper().zfill(8)}")
+                result.append(f"Memory Address: 0x{str(k).zfill(8)}h\nInitial Value (Decimal): {initial_memory.get(k, None)}\nCurrent Value (Decimal): {v}\nCurrent Value (Hexadecimal): {str(hex(v))[2:].upper().zfill(8)}\n")
+                print(f"Memory Address: 0x{str(k).zfill(8)}h, Initial Value (Decimal): {initial_memory.get(k, None)}, Current Value (Decimal): {v}, Current Value (Hexadecimal): {str(hex(v))[2:].upper().zfill(8)}")
             print("-" * 80)
             initial_memory.update(changed_memory)
         else:
@@ -115,8 +121,9 @@ def execute_program(registers, memory, program,pdf=False):
             result.append("Changed Registers:")
             print("Changed Registers:")
             for k, v in changed_registers.items():
-                result.append(f"{k}: {str(hex(v)).upper().zfill(8)}Hex, (Decimal):{v}")
-                print(f"{k}: {str(hex(v)).upper().zfill(8)}h, (Decimal):{v}")
+                result.append(f"{k}: 0X{str(hex(v))[2:].upper().zfill(8)}h, (Decimal):{v}")
+                print(f"{k}: 0X{str(hex(v))[2:].upper().zfill(8)}h, (Decimal):{v}")
+
         else:
             result.append("No registers modified")
             print("No registers modified")

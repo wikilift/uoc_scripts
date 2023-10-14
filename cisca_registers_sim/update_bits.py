@@ -11,9 +11,14 @@ def set_labels(program):
             label_positions[operands[0]] = idx
     return label_positions
    
-def update_status_bits(result):
+def update_status_bits(result,reset=False):
     status_bits['Z'] = 1 if result == 0 else 0  # Zero flag
     status_bits['S'] = 1 if (result >> 31) & 1 else 0  # Sign flag
+    if reset :
+        status_bits['C'] =  0 
+        status_bits['V'] =  0 
+
+    
 
 def JE(label, index):
     

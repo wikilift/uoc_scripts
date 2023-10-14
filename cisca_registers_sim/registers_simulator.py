@@ -7,8 +7,7 @@ registers = {
     'R2': 0x08000080,
     'R3': 0x10000001,
     'R4': 0xEFFFFFFE,
-   
-    
+    'R5': 0x00000001
 }
 
 memory = {       
@@ -17,22 +16,9 @@ memory = {
     'EFFFFFFE': 0x11110000,
     '00100001': 0xFFFFF000,
     '00200002': 0xF000000F,
-    'A':        0xF000000F
+    'A':        0x00100001
 }
 program = [
-   
-    ('AND', 'R0', 'R2'),
-    ('NOT', '[R0]'),
-    ('MOV', 'R0',"[A]"),
-    ('SAR', 'R0', 10),
-    ('SUB', 'R0',"[R4]"),
-   
-]
-execute_program(registers=registers, memory=memory, program=program,pdf=True)
+   ('ADD', 'R5', 'R2')]
+execute_program(registers=registers, memory=memory, program=program,pdf=False)
 
-
-
-# ('LABEL', 'End_loop'),
-# ('MOV', '[100]', 'R1')    
-# ('LABEL', 'Loop'),
-# ('ADD', 'R5', 'R6'),

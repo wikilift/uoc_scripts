@@ -7,15 +7,28 @@ def AND(register1, operand2, registers):
         and_value = operand2
     result = registers[register1] & and_value
     registers[register1] = result
-    update_status_bits(result)
+   
+    update_status_bits(result,reset=True)
 
 def CMP(register1, register2, registers, status_bits):
-    value1 = registers[register1]
-    value2 = registers[register2]
+  
+    value1 = registers[register1] & 0xFFFFFFFF
+    if isinstance(register2, int):
+        value2 = register2 & 0xFFFFFFFF
+    else:
+        value2 = registers.get(register2, 0) & 0xFFFFFFFF
     result = value1 - value2
-    update_status_bits(result, status_bits)
-    status_bits['C'] = 1 if result < 0 else 0
-    status_bits['V'] = 0
+    result_32bit = result & 0xFFFFFFFF
+    status_bits['Z'] = 1 if result_32bit == 0 else 0 
+    status_bits['S'] = 1 if result < 0 else 0
+    status_bits['C'] = 1 if result < 0 else 0 
+    status_bits['V'] = 0  
+
+
+
+
+
+
 
 def JE(label, index, status_bits, label_positions):
     if status_bits['Z'] == 1:
@@ -52,16 +65,17 @@ def JL(label, index, status_bits, label_positions):
         return label_positions[label]
     return index
 
-def SHL(register, bits, registers, status_bits):
+def SHL(register, bits, registers):
     registers[register] <<= bits
     registers[register] &= 0xFFFFFFFF
-    update_status_bits(registers[register], status_bits)
+    update_status_bits(registers[register])
 
 
-def SHR(register, bits, registers, status_bits):
+def SHR(register, bits, registers):
     registers[register] >>= bits
-    update_status_bits(registers[register], status_bits)
-    
+    update_status_bits(registers[register])
+#     Changed Registers:
+# R0: 0000X400h, (Decimal):1024
     
 def SAR(register, bits, registers):
         sign_bit = registers[register] & 0x80000000
@@ -81,7 +95,7 @@ def NOT(register, registers,memory):
             mem_address = registers.get(actual_register, 0)
           
             memory[mem_address] = ~memory.get(mem_address, 0) & 0xFFFFFFFF
-            update_status_bits(memory[mem_address])
+            update_status_bits(memory[mem_address],reset=True)
         else:
            
             registers[register] = ~registers[register] & 0xFFFFFFFF  
