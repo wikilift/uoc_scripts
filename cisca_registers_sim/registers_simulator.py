@@ -20,5 +20,6 @@ memory = {
 }
 program = [
    ('ADD', 'R5', 'R2')]
+
 execute_program(registers=registers, memory=memory, program=program,pdf=False)
 

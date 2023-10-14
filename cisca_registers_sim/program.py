@@ -21,7 +21,6 @@ def generate_pdf(output_lines,initial_registers,initial_memory):
     for line in output_lines:
         q=line.split("\n")
         for i in q:
-            
             pdf.cell(0, 10, i, ln=True)
     
     pdf.output("output/assembly_output.pdf")
@@ -34,7 +33,7 @@ def execute_program(registers, memory, program,pdf=False):
     initial_registers = registers.copy()
     initial_memory = memory.copy()
 
-    while index < len(program):  # Changed to a while loop
+    while index < len(program): 
         instruction, *operands = program[index]
         result.append(f"Executing: {instruction} {operands}")
         print(f"Executing: {instruction} {operands}")
@@ -64,7 +63,6 @@ def execute_program(registers, memory, program,pdf=False):
             DEC(*operands,registers=registers)
         elif instruction == 'INC':
             INC(*operands,registers=registers)
-            #update_status_bits(registers[operands[0]]) 
         elif instruction == 'JE':
             index = JE(*operands, index,status_bits=status_bits,label_positions=label_positions)          
         elif instruction == 'MUL':

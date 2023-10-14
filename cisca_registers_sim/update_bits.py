@@ -12,8 +12,8 @@ def set_labels(program):
     return label_positions
    
 def update_status_bits(result,reset=False):
-    status_bits['Z'] = 1 if result == 0 else 0  # Zero flag
-    status_bits['S'] = 1 if (result >> 31) & 1 else 0  # Sign flag
+    status_bits['Z'] = 1 if result == 0 else 0  
+    status_bits['S'] = 1 if (result >> 31) & 1 else 0 
     if reset :
         status_bits['C'] =  0 
         status_bits['V'] =  0 
@@ -27,31 +27,26 @@ def JE(label, index):
     return index
 
 def JNE(label, index):
-         # Jump if not equal (Z = 0)
     if status_bits['Z'] == 0: 
         return label_positions[label]
     return index
 
 def JGE(label, index):
-         # Jump if greater or equal (S = 0)
     if status_bits['S'] == 0: 
         return label_positions[label]
     return index
 
 def JG(label, index):
-         # Jump if greater (S = 0 and Z = 0)
     if status_bits['S'] == 0 and status_bits['Z'] == 0: 
         return label_positions[label]
     return index
 
 def JLE(label, index):
-    # Jump if less or equal (S = 1 or Z = 1)
     if status_bits['S'] == 1 or status_bits['Z'] == 1:  
         return label_positions[label]
     return index
 
 def JL(label, index):
-        # Jump if less (S = 1)
     if status_bits['S'] == 1:  
         return label_positions[label]
     return index

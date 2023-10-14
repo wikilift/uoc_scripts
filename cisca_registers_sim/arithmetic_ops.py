@@ -52,8 +52,8 @@ def SUB(operand1, operand2, registers, memory):
         result = value1 - value2
         result_32bit = result & 0xFFFFFFFF  
         registers[operand1] = result_32bit
-        # status_bits['S'] = 1 if (result_32bit >> 31) & 1 else 0
-        status_bits['S'] = 1 if result < 0 else 0
+        status_bits['S'] = 1 if (result_32bit >> 31) & 1 else 0
+        #status_bits['S'] = 1 if result < 0 else 0
         status_bits['C'] = 1 if result < 0 else 0
         status_bits['V'] = 0  # impossible overflow on sub
         status_bits['Z'] =1 if result == 0 else 0

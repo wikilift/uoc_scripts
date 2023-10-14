@@ -2,6 +2,13 @@
 from cisca_instruction_set import ADDRESSING_MODES,OPCODES
 from operator_chooser import ARITHMETIC_OPERATIONS,execute_arithmetic_operation
 
+def to_twos_complement(value, bits):
+    if value >= 0:
+        return format(value, 'x').zfill(bits//4).upper()
+    else:
+        value = (1 << bits) + value
+        return format(value, 'x').zfill(bits//4).upper()
+
 
 def MOV(register1, value, registers):
     if isinstance(value, str):
@@ -18,7 +25,7 @@ def to_little_endian(hex_str, num_positions):
     return little_endian_str
 
 
-def calculate_offsets(instructions, initial_offset=0x00000100):
+def calculate_offsets(instructions, initial_offset):
     offset = initial_offset
     offset_mapping = []
     
@@ -26,8 +33,9 @@ def calculate_offsets(instructions, initial_offset=0x00000100):
         formatted_offset = f"{offset:08X}"
         label = None
 
-        if 'LABEL' in operands[-1]:
-            label = operands.pop().split(":")[1]
+        if isinstance(operands[-1], str) and 'LABEL' in operands[-1]:
+         label = operands.pop().split(":")[1]
+
 
         if instruction == 'JMP':  
             offset += 1 + 1 + 4  
@@ -48,8 +56,8 @@ def calculate_offsets(instructions, initial_offset=0x00000100):
 
     return offset_mapping
 
-def translate_to_hex_with_labels(instructions, memory_values=None, initial_offset=0x00000100):
-    offset_mapping = calculate_offsets(instructions, initial_offset)
+def translate_to_hex_with_labels(instructions, offset, memory_values=None):
+    offset_mapping = calculate_offsets(instructions,initial_offset= offset)
     hex_translation = {}
     label_to_offset = {label: offset for offset, (instruction_str, label) in offset_mapping if label is not None}
     i=0
@@ -77,7 +85,10 @@ def translate_to_hex_with_labels(instructions, memory_values=None, initial_offse
 
         for operand in operands:
             if isinstance(operand, str) and operand.startswith('R'):
-                hex_operands.append(f" {ADDRESSING_MODES['Register']}{operand[1]} ")
+                reg_number = int(operand[1:])
+                reg_hex = format(reg_number, 'X')
+                hex_operands.append(f" {ADDRESSING_MODES['Register']}{reg_hex} ")
+
             
             elif isinstance(operand, str) and operand.startswith('[') and operand.endswith(']'):
                 if memory_values is None:
@@ -85,7 +96,11 @@ def translate_to_hex_with_labels(instructions, memory_values=None, initial_offse
                     exit()
                 if '+' in operand:
                     base, register = operand[1:-1].split('+')
-                    num=int(base)
+                    if base.isnumeric():
+                        num = int(base)
+                    else:
+                        num = int(memory_values.get(base, "0"), 16)
+                   # num=int(base)
                     hex_str=hex(num)[2:]
                     hex_base = to_little_endian(hex_str=hex_str, num_positions=8)
                     hex_operands.append(f" {ADDRESSING_MODES['Indexed']}{register[1]} {hex_base}")
@@ -103,8 +118,9 @@ def translate_to_hex_with_labels(instructions, memory_values=None, initial_offse
                     hex_operands.append(f" {ADDRESSING_MODES['Immediate']}0 {to_little_endian(hex_str=target_offset,num_positions=8)}")
                 else: 
                     relative_offset = int(target_offset, 16) - int(next_offset[0], 16)
-                    relative_offset_hex = format(relative_offset, 'x').upper()
-                    hex_operands.append(f" {ADDRESSING_MODES['Relative_to_PC']}0 {to_little_endian(hex_str= relative_offset_hex,num_positions=4)}")
+                    relative_offset_hex = to_twos_complement(relative_offset, 16)
+                    hex_operands.append(f" {ADDRESSING_MODES['Relative_to_PC']}0 {to_little_endian(hex_str= relative_offset_hex, num_positions=4)}")
+                    #hex_operands.append(f" {ADDRESSING_MODES['Relative_to_PC']}0 {to_little_endian(hex_str= relative_offset_hex,num_positions=4)}")
         if instruction in ARITHMETIC_OPERATIONS:
             
                 operands = eval(operands_str)
