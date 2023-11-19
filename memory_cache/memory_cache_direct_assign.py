@@ -41,7 +41,7 @@ def direct_assign(memory_accesses,block_size=4,num_lines=4,
     print(f"La tasa de aciertos (Hit Ratio) es: {hit_ratio}")
     print(f"El tiempo de acceso a memoria medio es: {tm}ns")
 
-        # Incrementamos el contador LRU para todas las líneas antes de verificar si el bloque está en caché
+       
     cache_evolution.fillna('', inplace=True)
     cache_evolution.to_excel("output/cache_evolution.xlsx")  
     excel_file = "output/cache_evolution.xlsx"
