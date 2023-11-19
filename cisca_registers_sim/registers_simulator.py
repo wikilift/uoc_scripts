@@ -19,8 +19,15 @@ memory = {
     'A':        0x00100001
 }
 program = [
-   ('ADD', 'R5', 'R2')]
+  
+     ('AND', 'R0', 'R2'),
+     ('NOT', 'R0'),
+     ('MOV', 'R0',"[A]"),
+     ('SAR', 'R0', 10),
+     ('SUB', 'R0',"[R4]"),
+  
+ ]
 
 
 
-execute_program(registers=registers, memory=memory, program=program,pdf=False)
+execute_program(registers=registers, memory=memory, program=program,pdf=True)

@@ -2,7 +2,7 @@ from memory_ops import translate_to_hex_with_labels
 
 
 
-
+    
 def printResult(offset,graphic=False,xlsOutput=False):
     import pandas as pd
     hex_translation_reduced = translate_to_hex_with_labels(instructions= program,memory_values= memory_values, offset=offset)
@@ -28,25 +28,25 @@ def printResult(offset,graphic=False,xlsOutput=False):
         excel_path = os.path.join(output_folder, "translated_instructions.xlsx")
         df.to_excel(excel_path, index=False)
 
-program = [
-    ('MOV', 'R0', '[A]'),
-    ('CMP', 'R0', '[B]'),
-    ('JLE', 'E1'),
-    ('DEC', 'R0'),
-    ('JMP', 'E2'),
-    ('ADD', '[B]', 4, 'LABEL:E1'),
-    ('MUL', '[B]', 'R0', 'LABEL:E2'),
-    ('MOV', '[A]', 'R0'),
-   
-]
 memory_values= {
+    "V": "00800080",
     "B": "200",
     "100":"0"
 }
-initial_offset=0x000010F8
+initial_offset=0x00AABBCC
+
+program = [
+    ('XOR', 'R10', '[V]','LABEL:E1'),
+    ('ADD', 'R10','[R1]' ),
+    ('CMP', 'R10',10),
+    ('JLE', 'E1'),
+    ('SUB', 'R10', '[V+R1]'),
+   
+]
 
 
-printResult(xlsOutput=False,graphic=True,offset=initial_offset)
+
+printResult(xlsOutput=True,graphic=True,offset=initial_offset)
 
 
 

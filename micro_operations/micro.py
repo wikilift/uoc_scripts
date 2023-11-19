@@ -121,20 +121,22 @@ def simulate_instruction_cycle(instruction, initial_offset_hex, instruction_byte
     steps.append("_"*80)
     return steps
 
-offsets = ["00010009h", "0001000Ch", "00010012h", "00010019h"]
+offsets = ["00AABBCCh","00AABBD3h","00AABBDAh","00AABBE1h","00AABBE5h"]
 instructions = [
-    ("MUL", "R1", "R2"),
-    ("JMP", "loop"),
-    ("MOV", "R3", 4),
-    ("MOV", "[100+R3]", "R1")
+    ('XOR', 'R10', '[V]'),
+    ('ADD', 'R10','[R1]' ),
+    ('CMP', 'R10',10),
+    ('JLE', 'E1'),
+    ('SUB', 'R10', '[V+R1]'),
 ]
 instruction_bytes = [
-    "22 11 12",
-    "40 00 03 00 01 00",
-    "10 13 00 04 00 00 00",
-    "10 53 64 00 00 00 11"
+    "32 1A 20 80 00 80 00",
+    "20 1A 20 00 00 00 00",
+    "26 1A 00 0A 00 00 00",
+    "44 60 E7 FF",
+    "21 1A 51 80 00 80 00"
 ]
-known_labels = ["loop", "start", "end"] 
+known_labels = ["E1" ] 
 
 for offset, instruction, instr_bytes in zip(offsets, instructions, instruction_bytes):
     for r in simulate_instruction_cycle(instruction, offset, instr_bytes):
